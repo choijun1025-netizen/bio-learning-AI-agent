@@ -6,82 +6,225 @@
   <title>식물 관찰 학습</title>
   <style>
     :root {
-      --green-900: #173d2a;
-      --green-700: #2f6948;
-      --green-100: #e7f0e7;
-      --paper: #fffdf8;
-      --ground: #f4f1e8;
-      --line: #d8e1d7;
-      --muted: #66756b;
+      --green-900: #163a2d;
+      --green-700: #2b6149;
+      --green-100: #e8f0e4;
+      --paper: #fffcf5;
+      --ground: #f4f1e6;
+      --line: #d8dece;
+      --muted: #556659;
       --error: #9a482f;
       --error-bg: #fae8e0;
     }
 
     * { box-sizing: border-box; }
 
-    html, body {
-      height: 100%;
-      margin: 0;
-    }
+    html { scroll-padding-top: 24px; }
 
     body {
-      overflow: hidden;
+      margin: 0;
       color: var(--green-900);
-      background:
-        radial-gradient(circle at 5% 0%, #e5efe2 0, transparent 35%),
-        radial-gradient(circle at 100% 0%, #f3e9d6 0, transparent 32%),
-        var(--ground);
-      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      background: var(--ground);
+      font-family: "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
     }
 
     button, textarea { font: inherit; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid #7ca44e; outline-offset: 4px; }
 
     .page {
-      height: 100%;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+      width: min(100% - 64px, 1240px);
+      margin-inline: auto;
     }
 
-    header {
+    .masthead {
+      min-height: 68px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      flex: 0 0 auto;
+      justify-content: space-between;
+      gap: 16px;
     }
 
+    .brand, .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .brand {
+      font-size: 15px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .site-nav {
+      gap: 24px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .site-nav a { text-decoration: none; }
+    .site-nav a:hover { text-decoration: underline; }
+
     .logo {
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
+      width: 33px;
+      height: 33px;
+      position: relative;
+      flex: none;
+      border-radius: 50%;
+      background: var(--green-900);
+    }
+
+    .logo::before, .logo::after {
+      content: "";
+      position: absolute;
+      background: #d9e5a5;
+      border-radius: 80% 0 80% 0;
+      transform: rotate(-11deg);
+    }
+
+    .logo::before { width: 13px; height: 8px; top: 10px; left: 15px; }
+    .logo::after { width: 10px; height: 7px; top: 16px; left: 8px; transform: rotate(64deg); }
+
+    .content {
       display: grid;
-      place-items: center;
-      color: white;
-      font-size: 23px;
-      background: linear-gradient(145deg, #4c9566, var(--green-900));
-      box-shadow: 0 9px 22px rgb(23 61 42 / 18%);
+      gap: 29px;
+    }
+
+    .hero {
+      position: relative;
+      isolation: isolate;
+      min-height: 310px;
+      display: grid;
+      align-items: center;
+      overflow: hidden;
+      border-radius: 24px;
+      background: #183c2f;
+      color: #fffcf0;
+    }
+
+    .hero-image {
+      position: absolute;
+      inset: 0 0 0 auto;
+      z-index: -2;
+      width: 67%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 49%;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(90deg, #16372b 13%, #16372b 30%, rgb(22 55 43 / 84%) 43%, rgb(22 55 43 / 5%) 78%);
+    }
+
+    .hero-copy {
+      width: min(100%, 600px);
+      padding: 35px clamp(24px, 5vw, 66px);
     }
 
     h1 {
       margin: 0;
-      font-size: 24px;
-      letter-spacing: -.04em;
+      font-family: "Noto Serif KR", "Batang", serif;
+      font-size: clamp(38px, 6vw, 70px);
+      line-height: 1.12;
+      letter-spacing: -.085em;
+      font-weight: 800;
     }
 
-    header p {
-      margin: 3px 0 0;
-      color: var(--muted);
+    .hero p {
+      max-width: 350px;
+      margin: 17px 0 22px;
+      color: #eef0df;
+      font-size: clamp(14px, 1.5vw, 16px);
+      line-height: 1.65;
+    }
+
+    .hero-link {
+      min-height: 41px;
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      padding: 8px 15px;
+      border-radius: 8px;
+      background: #e1e8ad;
+      color: #203b29;
       font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
     }
 
-    main {
-      flex: 1;
-      min-height: 0;
+    .hero-link:hover { background: #edf1c9; }
+
+    .gallery h2 {
+      margin: 0 0 12px;
+      font-size: 19px;
+      letter-spacing: -.045em;
+    }
+
+    .specimens {
       display: grid;
-      grid-template-columns: minmax(0, 1.12fr) minmax(340px, .88fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
     }
+
+    .specimen {
+      min-width: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: 38% 1fr;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--paper);
+    }
+
+    .specimen img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 112px;
+      object-fit: cover;
+      background: #dce6c9;
+    }
+
+    .specimen figcaption {
+      align-self: center;
+      padding: 11px 14px;
+      font-size: 13px;
+      line-height: 1.55;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+
+    .specimen strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+
+    .specimen span { color: var(--muted); }
+
+    .observation {
+      display: grid;
+      grid-template-columns: minmax(0, 1.03fr) minmax(0, .97fr);
+      grid-auto-rows: clamp(430px, 55vh, 650px);
+      gap: 16px;
+    }
+
+    .photo-credits {
+      padding: 20px 0 24px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .photo-credits summary { cursor: pointer; }
+    .photo-credits p { margin: 8px 0 0; }
 
     .panel {
       min-height: 0;
@@ -89,9 +232,9 @@
       display: flex;
       flex-direction: column;
       border: 1px solid var(--line);
-      border-radius: 22px;
+      border-radius: 17px;
       background: var(--paper);
-      box-shadow: 0 15px 34px rgb(23 61 42 / 8%);
+      box-shadow: 0 8px 25px rgb(23 61 42 / 5%);
     }
 
     .panel-head {
@@ -107,15 +250,18 @@
     .panel-head h2 {
       margin: 0;
       font-size: 16px;
+      flex: none;
     }
 
     .badge {
+      min-width: 0;
       padding: 6px 10px;
       border-radius: 999px;
       color: var(--green-700);
       background: var(--green-100);
       font-size: 12px;
       font-weight: 700;
+      overflow-wrap: anywhere;
     }
 
     .badge.error {
@@ -138,11 +284,9 @@
       overflow: hidden;
       display: grid;
       place-items: center;
-      border: 1px dashed #acc4ae;
-      border-radius: 17px;
-      background: repeating-linear-gradient(
-        135deg, #f5f8f2 0 14px, #edf3eb 14px 28px
-      );
+      border: 1px dashed #9eae8b;
+      border-radius: 13px;
+      background: #f1f3e7;
     }
 
     .stage.drag { outline: 3px solid #83ae8a; }
@@ -462,27 +606,74 @@
       opacity: .55;
     }
 
-    @media (max-width: 900px) {
-      body { overflow: auto; }
-      .page { height: auto; min-height: 100%; }
-      main {
+    @media (max-width: 840px) {
+      .page { width: calc(100% - 40px); }
+      .observation {
         grid-template-columns: 1fr;
-        grid-template-rows: 540px 520px;
+        grid-auto-rows: 460px;
       }
+    }
+
+    @media (max-width: 570px) {
+      .page { width: calc(100% - 28px); }
+      .masthead { min-height: 58px; }
+      .site-nav { gap: 13px; font-size: 12px; }
+      .brand { gap: 7px; font-size: 13px; }
+      .content { gap: 22px; }
+      .hero { min-height: 270px; border-radius: 18px; }
+      .hero-image { width: 100%; object-position: 65% center; }
+      .hero::after {
+        background: linear-gradient(90deg, rgb(15 41 30 / 97%), rgb(15 41 30 / 82%) 55%, rgb(15 41 30 / 30%));
+      }
+      .specimens { grid-template-columns: 1fr; gap: 8px; }
+      .specimen { grid-template-columns: 84px minmax(0, 1fr); }
+      .specimen img { height: 70px; min-height: 0; }
+      .observation { grid-auto-rows: 390px 460px; }
     }
   </style>
 </head>
 <body>
   <div class="page">
-    <header>
-      <div class="logo" aria-hidden="true">⌁</div>
-      <div>
-        <h1>식물 관찰 학습</h1>
-        <p>사진과 문서를 첨부한 뒤 관찰한 점을 학습 도우미와 이야기해 보세요.</p>
-      </div>
+    <header class="masthead">
+      <a class="brand" href="/">
+        <span class="logo" aria-hidden="true"></span>
+        식물 관찰 학습
+      </a>
+      <nav class="site-nav" aria-label="페이지 메뉴">
+        <a href="#examples">관찰 예시</a>
+        <a href="#observation">관찰하기</a>
+      </nav>
     </header>
 
-    <main>
+    <main class="content">
+      <section class="hero" aria-labelledby="pageTitle">
+        <img class="hero-image" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Fern_on_dark_background.jpg/1280px-Fern_on_dark_background.jpg" alt="" fetchpriority="high">
+        <div class="hero-copy">
+          <h1 id="pageTitle">식물 관찰<br>학습</h1>
+          <p>잎의 결, 꽃의 모양, 잎 위로 찾아온 작은 곤충까지. 발견한 것을 사진으로 남기고 AI에게 질문해 보세요.</p>
+          <a class="hero-link" href="#observation">관찰 시작하기 <span aria-hidden="true">↓</span></a>
+        </div>
+      </section>
+
+      <section class="gallery" id="examples" aria-labelledby="galleryTitle">
+        <h2 id="galleryTitle">관찰 예시</h2>
+        <div class="specimens">
+          <figure class="specimen">
+            <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ac/Fern_frond._%289572140631%29.jpg/960px-Fern_frond._%289572140631%29.jpg" alt="끝이 둥글게 말려 있는 양치식물의 어린잎">
+            <figcaption><strong>양치식물의 어린잎</strong><span>잎끝이 어떤 모양으로 말려 있는지 살펴보세요.</span></figcaption>
+          </figure>
+          <figure class="specimen">
+            <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Dandelion_%28Taraxacum_officinale%29_blossom.jpg/960px-Dandelion_%28Taraxacum_officinale%29_blossom.jpg" alt="가느다란 노란 꽃이 촘촘하게 모인 민들레">
+            <figcaption><strong>민들레 꽃</strong><span>가운데와 가장자리의 꽃 모양을 비교해 보세요.</span></figcaption>
+          </figure>
+          <figure class="specimen">
+            <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/Coccinella_septempunctata_on_a_leaf.JPG/960px-Coccinella_septempunctata_on_a_leaf.JPG" alt="초록 잎 위의 붉은 무당벌레와 검은 점">
+            <figcaption><strong>칠성무당벌레</strong><span>등의 검은 점을 세고, 잎 위에서 어디로 움직이는지 관찰해 보세요.</span></figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <div class="observation" id="observation">
       <section class="panel" aria-label="관찰 자료">
         <div class="panel-head">
           <h2>관찰 자료</h2>
@@ -517,18 +708,31 @@
       <section class="panel" aria-label="관찰 채팅">
         <div class="panel-head">
           <h2>관찰 대화</h2>
-          <span class="badge error" id="status">연결 확인 중</span>
+          <span class="badge error" id="status" role="status">연결 확인 중</span>
         </div>
         <div class="chat-body">
           <div class="messages" id="messages"></div>
           <p class="notice">선택한 사진과 문서는 질문과 함께 AI로 전송되며, AI가 만든 파일도 답변에서 받아볼 수 있습니다.</p>
           <form id="chatForm">
-            <textarea id="chatInput" rows="1" placeholder="관찰한 점이나 궁금한 점을 입력하세요"></textarea>
+            <textarea id="chatInput" rows="1" aria-label="관찰 질문" placeholder="관찰한 점이나 궁금한 점을 입력하세요"></textarea>
             <button id="sendButton" type="submit">보내기</button>
           </form>
         </div>
       </section>
+      </div>
     </main>
+    <footer class="photo-credits">
+      <details>
+        <summary>사진 출처</summary>
+        <p>
+          <a href="https://commons.wikimedia.org/wiki/File:Fern_on_dark_background.jpg">배너 사진 · Zeek7</a>
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> ·
+          <a href="https://commons.wikimedia.org/wiki/File:Fern_frond._(9572140631).jpg">양치식물 · Bernard Spragg. NZ, CC0</a> ·
+          <a href="https://commons.wikimedia.org/wiki/File:Dandelion_(Taraxacum_officinale)_blossom.jpg">민들레 · Kollibri1969, CC0</a> ·
+          <a href="https://commons.wikimedia.org/wiki/File:Coccinella_septempunctata_on_a_leaf.JPG">무당벌레 · Link89, 퍼블릭 도메인</a>
+        </p>
+      </details>
+    </footer>
   </div>
 
   <script>
