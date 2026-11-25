@@ -780,6 +780,6 @@ server.on("error", (error) => {
   process.exit(1);
 });
 
-server.listen(PORT, "127.0.0.1", () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`식물 관찰 학습: http://127.0.0.1:${PORT}`);
 });
