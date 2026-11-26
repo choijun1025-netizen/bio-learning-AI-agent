@@ -73,7 +73,8 @@
     textarea[aria-invalid="true"] { border-color: #a2332f; }
     .field-error { margin-top: 4px; color: #952c2a; font-size: 12px; }
     .materials-field { margin-top: 17px; }
-    .materials-field label span { margin-left: 4px; color: var(--muted); font-size: 12px; font-weight: 400; }
+    .materials-field label { display: inline; }
+    .materials-field .optional { margin-left: 4px; color: var(--muted); font-size: 12px; }
     .actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; border-top: 1px solid var(--line); margin-top: 19px; padding-top: 16px; }
     .progress { color: var(--muted); font-size: 13px; }
     .submit { padding: 10px 15px; border: 0; border-radius: 8px; background: var(--blue); color: white; font-weight: 800; }
@@ -210,9 +211,10 @@
             </div>
           </fieldset>
           <div class="field materials-field">
-            <label for="materials">실험 도구·재료 <span aria-hidden="true">선택 사항</span></label>
+            <label for="materials">실험 도구·재료</label>
+            <span class="optional" id="materials-optional">선택 사항</span>
             <span class="hint" id="materials-hint">사용할 도구와 재료를 적어 보세요. 여러 개라면 쉼표나 줄바꿈으로 구분할 수 있어요.</span>
-            <textarea id="materials" name="materials" rows="2" maxlength="1500" aria-describedby="materials-hint materials-error" placeholder="예: 잎 시료, 측정기, 기록용 표"></textarea>
+            <textarea id="materials" name="materials" rows="2" maxlength="1500" aria-describedby="materials-optional materials-hint materials-error" placeholder="예: 잎 시료, 측정기, 기록용 표"></textarea>
             <p class="field-error" id="materials-error" hidden></p>
           </div>
           <div class="actions">
