@@ -141,6 +141,14 @@ async function review(request, response) {
       design[key] = value;
     }
   }
+  const materials = typeof input?.materials === "string" ? input.materials.trim() : "";
+  if (input?.materials != null && typeof input.materials !== "string") {
+    errors.materials = "실험 도구와 재료를 글로 입력해 주세요.";
+  } else if (materials.length > MAX_FIELD_LENGTH) {
+    errors.materials = "1,500자 이하로 입력해 주세요.";
+  } else if (materials) {
+    design.materials = materials;
+  }
   if (Object.keys(errors).length) {
     return sendJson(response, 400, { error: "입력 항목을 확인해 주세요.", fields: errors });
   }
@@ -181,7 +189,7 @@ async function review(request, response) {
     }
 
     const data = await upstream.json();
-    const result = parseReview(data.textResponse);
+    const result = parseReview(data.textResponse, Object.keys(design));
     if (!result || data.error || data.type === "abort") {
       return sendJson(response, 502, { error: "AI 검토 결과를 읽을 수 없습니다. 잠시 후 다시 검토해 주세요." });
     }
@@ -216,7 +224,7 @@ function buildPrompt(design, method) {
     scope: "review | outside | restricted",
     scopeReason: "outside이면 범위 밖인 이유 한 문장, 그 외에는 빈 문자열",
     summary: "설계 전반의 핵심 피드백 1~2문장",
-    items: Object.fromEntries(Object.keys(FIELDS).map((key) => [key, item])),
+    items: Object.fromEntries(Object.keys(design).map((key) => [key, item])),
     recommendations: [{ id: "문헌 목록에 있는 ID", reason: "이 설계의 어떤 판단에 도움이 되는지 한국어 한 문장" }],
   };
   return [
@@ -237,6 +245,11 @@ function buildPrompt(design, method) {
     "independent(조작 변인): 실제로 바꾸는 조건과 비교군이 분명한지 확인하세요. 공개 데이터 분석일 경우 직접 조작하지 않으므로 원 연구의 비교 요인과 군으로 표현하게 안내하세요.",
     "dependent(종속 변인): 측정값과 해석이 일치하는지 확인하세요. 분자량과 밴드 강도, 전사체 양과 단백질 양을 혼동하지 마세요. 비교 단위와 필요한 정규화 근거를 확인하세요.",
     "controls(통제 변인): 일정하게 유지할 조건과 측정이 제대로 되었는지 판단하는 대조군을 구분하세요. 주어진 설계에 관련 있을 때 독립 시료와 같은 시료를 반복 측정한 횟수를 구분하고, 배치가 어느 군과도 겹치지 않는지 살피세요.",
+    ...(design.materials ? [
+      "materials(실험 도구·재료): 제출된 도구와 재료만 따로 평가하세요. 준비, 측정, 기록, 정리 등 이 설계의 어느 부분에서든 사용할 가능성이 있으면 적절함으로 판단하세요. 직접 측정에 꼭 필요하지 않은 것도 보조 용도가 있으면 인정하세요.",
+      "재료의 종류, 이름, 수량, 규격이나 쓰는 방법이 자세하지 않거나 목록에 빠진 것이 있다는 이유로 판정을 낮추지 마세요. 용도가 불분명해도 쓸 수 있는 합리적인 경우가 있으면 인정하세요.",
+      "하나 이상의 도구나 재료가 이 계획에 뚜렷하게 무관하거나 사용할 수 없을 때만 improve로 표시하고, 쓸 수 있는 항목은 함께 인정하세요. 목록 전체를 이 설계에 사용할 수 없을 때만 rework를 쓰세요. 고쳐야 할 항목이 있을 때는 그 항목과 이유만 짚고, 유효한 도구·재료에 대한 추가 요구를 하지 마세요.",
+    ] : []),
     "RT-qPCR이면 MIQE 2.0의 설계 관점에 따라 측정하는 전사체, 기준 유전자의 안정성 근거, 무주형 대조와 역전사 없음 대조의 목적을 필요에 따라 구분하세요.",
     "웨스턴 블롯이면 항체 특이성에서 대조군이 하는 역할과, 정량 비교에서 신호와 정규화 기준이 하는 역할을 구분하세요.",
     "공개 발현 데이터면 접근번호, 시료 메타데이터, 비교군 정의, 독립 시료와 배치, 결과 지표와 해석 범위를 우선 확인하세요.",
@@ -256,7 +269,7 @@ function buildPrompt(design, method) {
   ].join("\n");
 }
 
-function parseReview(text) {
+function parseReview(text, fieldNames) {
   if (typeof text !== "string") return null;
   const cleaned = text.trim().replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/i, "$1");
   let raw;
@@ -277,7 +290,7 @@ function parseReview(text) {
   }
   if (raw?.scope !== "review" || !isFeedback(raw.summary)) return null;
   const items = {};
-  for (const key of Object.keys(FIELDS)) {
+  for (const key of fieldNames) {
     const item = raw?.items?.[key];
     if (!VERDICTS.has(item?.verdict) || !isFeedback(item.reason) || !isFeedback(item.revision)) {
       return null;
