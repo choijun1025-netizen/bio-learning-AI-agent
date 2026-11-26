@@ -82,6 +82,8 @@
     .empty { display: grid; gap: 16px; }
     .empty > p, .error-message { padding: 13px 14px; border: 1px solid #d7e8e7; border-radius: 9px; background: #f1f8f7; color: var(--blue-dark); font-size: 14px; }
     .error-message { margin-bottom: 13px; border-color: #edc7c2; background: #fff2f0; color: #852b27; }
+    .scope-message { padding: 13px 14px; border: 1px solid #e5d5ac; border-radius: 9px; background: #fff8e8; color: #563e1b; }
+    .scope-message p { margin-top: 6px; font-size: 13px; }
     .rubric { margin: 0; }
     .rubric div { display: grid; grid-template-columns: 78px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid #e9ecf2; }
     .rubric div:last-child { border-bottom: 0; }
@@ -102,11 +104,12 @@
     .improve { background: #fcf0cc; color: #6b4900; }
     .rework { background: #fce5e2; color: #8d2526; }
     .references { margin-top: 22px; }
-    .sources { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 17px 22px 12px; list-style: none; }
+    .sources { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 10px; margin: 0; padding: 17px 22px; list-style: none; }
     .sources li { padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fbfdfd; }
     .sources a { color: var(--blue-dark); font-weight: 800; text-underline-offset: 3px; }
     .sources p { margin-top: 5px; color: var(--muted); font-size: 13px; word-break: keep-all; }
-    .source-links { display: flex; flex-wrap: wrap; gap: 7px 15px; padding: 0 22px 18px; font-size: 13px; color: var(--blue-dark); }
+    .sources .citation { font-size: 12px; }
+    .sources-empty { padding: 16px 22px; color: var(--muted); font-size: 13px; }
     .credits { margin-top: 10px; color: var(--muted); font-size: 11px; }
     .credits a { color: inherit; }
     @media (max-width: 800px) {
@@ -123,7 +126,7 @@
       .layout { gap: 12px; margin-top: 13px; }
       .panel-head, form, .result-body { padding-inline: 15px; }
       .sources { grid-template-columns: minmax(0, 1fr); padding-inline: 15px; }
-      .source-links { padding-inline: 15px; }
+      .sources-empty { padding-inline: 15px; }
     }
   </style>
 </head>
@@ -133,7 +136,7 @@
       <span class="brand"><span class="mark" aria-hidden="true">DNA</span> 분자생물학 실험 설계 코치</span>
       <nav class="navigation" aria-label="페이지 메뉴">
         <a class="skip" href="#review-result">검토 결과</a>
-        <a class="skip" href="#references">참고 문헌</a>
+        <a class="skip" href="#references">추천 문헌</a>
       </nav>
     </div>
   </header>
@@ -214,6 +217,7 @@
         </div>
         <div class="result-body">
           <p class="error-message" id="review-error" role="alert" hidden></p>
+          <div class="scope-message" id="scope-message" hidden></div>
           <div id="empty-result" class="empty">
             <p>실험 계획을 작성하고 <strong>AI 검토 받기</strong>를 누르면 항목별 판정이 여기에 표시됩니다.</p>
             <dl class="rubric">
@@ -229,17 +233,9 @@
       </section>
     </div>
     <section class="panel references" id="references" aria-labelledby="sources-title">
-      <div class="panel-head"><h2 id="sources-title">설계 기준과 참고 문헌</h2></div>
-      <ul class="sources">
-        <li><a href="https://academic.oup.com/clinchem/article/71/6/634/8119148" target="_blank" rel="noopener">MIQE 2.0 · 2025</a><p>qPCR 측정의 대조, 정규화, 결과 보고를 점검하는 기준</p></li>
-        <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6983856/" target="_blank" rel="noopener">Pillai-Kastoori 외 · 2020</a><p>웨스턴 블롯에서 항체 특이성과 대조 시료를 검토하는 사례</p></li>
-        <li><a href="https://pubmed.ncbi.nlm.nih.gov/27022035/" target="_blank" rel="noopener">Schurch 외 · 2016</a><p>RNA-seq에서 독립적인 생물학적 반복 수가 결과 검출에 미치는 영향</p></li>
-      </ul>
-      <div class="source-links">
-        <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed 논문 검색</a>
-        <a href="https://pmc.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PMC 공개 원문</a>
-        <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE132186" target="_blank" rel="noopener">GEO 효모 예시 데이터</a>
-      </div>
+      <div class="panel-head"><h2 id="sources-title">추천 문헌</h2></div>
+      <p class="sources-empty" id="sources-empty">실험 계획을 검토하면 관련 문헌과 추천 이유가 표시됩니다.</p>
+      <ul class="sources" id="sources" aria-label="이 설계의 추천 문헌" hidden></ul>
     </section>
     <p class="credits">DNA 모형 그림 <a href="https://commons.wikimedia.org/wiki/File:DNA_Double_Helix.png" target="_blank" rel="noopener">NHGRI / Apers0n, 퍼블릭 도메인</a></p>
   </main>
@@ -254,8 +250,11 @@
     const resultTitle = document.querySelector("#result-title");
     const resultStatus = document.querySelector("#result-status");
     const reviewError = document.querySelector("#review-error");
+    const scopeMessage = document.querySelector("#scope-message");
     const emptyResult = document.querySelector("#empty-result");
     const feedback = document.querySelector("#feedback");
+    const sources = document.querySelector("#sources");
+    const sourcesEmpty = document.querySelector("#sources-empty");
     const verdicts = { adequate: "적절함", improve: "보완 필요", rework: "재설정 필요" };
     const defaultMethod = "public-expression";
     const examples = {
@@ -298,12 +297,12 @@
       insertedExamples.delete(event.target);
       showFieldError(event.target, "");
       updateProgress();
-      if (!feedback.hidden) resultStatus.textContent = "수정됨 · 다시 검토 가능";
+      markReviewOutdated();
     });
 
     method.addEventListener("change", () => {
       updateExamples();
-      if (!feedback.hidden) resultStatus.textContent = "수정됨 · 다시 검토 가능";
+      markReviewOutdated();
     });
 
     sample.addEventListener("click", () => {
@@ -319,7 +318,7 @@
         }
       }
       updateProgress();
-      if (!feedback.hidden) resultStatus.textContent = "수정됨 · 다시 검토 가능";
+      markReviewOutdated();
     });
 
     function updateExamples() {
@@ -357,6 +356,8 @@
       resultStatus.textContent = "검토 중";
       emptyResult.hidden = true;
       feedback.hidden = true;
+      scopeMessage.hidden = true;
+      renderSources([], "실험 설계와 관련된 문헌을 확인하고 있습니다.");
 
       try {
         const response = await fetch("/api/review", {
@@ -369,8 +370,13 @@
           for (const input of inputs) showFieldError(input, result.fields?.[input.name] || "");
           throw new Error(result.error || "AI 검토를 완료할 수 없습니다.");
         }
-        renderFeedback(result);
-        resultStatus.textContent = "검토 완료";
+        if (result.scope === "outside" || result.scope === "restricted") {
+          renderScopeMessage(result);
+        } else {
+          renderFeedback(result);
+          renderSources(result.recommendations ?? [], "선별한 문헌 목록에서 이 설계와 직접 관련된 자료를 찾지 못했습니다.");
+          resultStatus.textContent = "검토 완료";
+        }
         resultTitle.focus();
       } catch (error) {
         resultStatus.textContent = "다시 시도 가능";
@@ -378,6 +384,7 @@
           ? "검토 서버와 연결되지 않았습니다. 잠시 후 다시 시도해 주세요."
           : error.message;
         reviewError.hidden = false;
+        renderSources([], "실험 검토가 완료되면 관련 문헌이 표시됩니다.");
         resultTitle.focus();
       } finally {
         setPending(false);
@@ -396,6 +403,12 @@
       const written = inputs.filter((input) => input.value.trim()).length;
       progress.textContent = written + " / " + inputs.length + " 작성";
       sample.hidden = written === inputs.length;
+    }
+
+    function markReviewOutdated() {
+      if (feedback.hidden && scopeMessage.hidden) return;
+      resultStatus.textContent = "수정됨 · 다시 검토 가능";
+      if (!sources.hidden) renderSources([], "수정한 계획을 다시 검토하면 관련 문헌이 표시됩니다.");
     }
 
     function setPending(value) {
@@ -435,6 +448,34 @@
       }
       feedback.replaceChildren(summary, list);
       feedback.hidden = false;
+    }
+
+    function renderScopeMessage(result) {
+      resultStatus.textContent = result.scope === "outside" ? "검토 범위 밖" : "검토 제한";
+      scopeMessage.replaceChildren(element("strong", "", result.message));
+      if (result.reason) scopeMessage.append(element("p", "", result.reason));
+      if (result.scope === "outside") {
+        scopeMessage.append(element("p", "", "유전자 발현이나 단백질의 양·활성처럼 분자 수준의 질문이나 지표가 포함된 실험을 검토합니다."));
+      }
+      scopeMessage.hidden = false;
+      renderSources([], "분자생물학 실험 검토가 완료되면 관련 문헌이 표시됩니다.");
+    }
+
+    function renderSources(recommendations, emptyMessage) {
+      sources.replaceChildren();
+      for (const recommendation of recommendations) {
+        const item = element("li");
+        const link = element("a", "", recommendation.title);
+        link.href = recommendation.url;
+        link.target = "_blank";
+        link.rel = "noopener";
+        item.append(link, element("p", "citation", recommendation.citation),
+          element("p", "", recommendation.reason));
+        sources.append(item);
+      }
+      sources.hidden = recommendations.length === 0;
+      sourcesEmpty.textContent = emptyMessage;
+      sourcesEmpty.hidden = recommendations.length > 0;
     }
 
     function element(tag, className, content) {
