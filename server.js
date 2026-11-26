@@ -94,11 +94,14 @@ async function review(request, response) {
       headers: { Authorization: "Bearer " + API_KEY, "Content-Type": "application/json" },
       body: payload,
     };
-    let upstream = await postReview(endpoint, options);
-    if (!upstream || [502, 503, 504].includes(upstream.status)) {
-      await upstream?.body?.cancel();
-      await delay(1800);
+    let upstream;
+    for (const backoff of [0, 1800, 4200, 7000]) {
+      if (backoff) {
+        await upstream?.body?.cancel();
+        await delay(backoff);
+      }
       upstream = await postReview(endpoint, options);
+      if (upstream && ![502, 503, 504].includes(upstream.status)) break;
     }
     if (!upstream?.ok) {
       console.warn("AnythingLLM review unavailable", upstream?.status ?? "connection");
