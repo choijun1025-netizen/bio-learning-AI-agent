@@ -3,26 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="실험 목적, 가설, 조작·종속·통제 변인을 작성하고 AI 검토를 받아 보세요.">
-  <title>실험 설계 코치</title>
+  <meta name="description" content="분자생물학 실험의 목적, 가설, 변인을 검토하고 측정과 비교 기준을 구체화합니다.">
+  <title>분자생물학 실험 설계 코치</title>
   <style>
     :root {
       color-scheme: light;
-      --ink: #1c2740;
-      --muted: #525d70;
-      --line: #dce0e8;
+      --ink: #192a3a;
+      --muted: #4d6170;
+      --line: #d6e3e8;
       --paper: #fff;
-      --page: #f3f4f7;
-      --navy: #1a2845;
-      --blue: #294eb9;
-      --blue-dark: #173780;
-      --lime: #dfed85;
+      --page: #eef4f5;
+      --navy: #112333;
+      --blue: #116b6b;
+      --blue-dark: #124c53;
+      --aqua: #a3eee2;
       --radius: 16px;
     }
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
     body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.6 "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
-    button, textarea { font: inherit; }
+    button, textarea, select { font: inherit; }
     button { cursor: pointer; }
     button:disabled { cursor: wait; opacity: .65; }
     :focus-visible { outline: 3px solid #6485eb; outline-offset: 3px; }
@@ -31,38 +31,40 @@
     .masthead { background: var(--paper); border-bottom: 1px solid var(--line); }
     .masthead .wrap { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; }
-    .mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--navy); color: var(--lime); font-size: 13px; font-weight: 800; }
+    .mark { display: grid; place-items: center; width: 36px; height: 34px; border-radius: 9px; background: var(--navy); color: var(--aqua); font-size: 11px; font-weight: 800; }
+    .navigation { display: flex; flex-wrap: wrap; justify-content: end; gap: 5px 17px; }
     .skip { color: var(--blue-dark); text-underline-offset: 4px; font-size: 13px; }
     main { padding: 28px 0 46px; }
     .intro {
-      display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 28px; align-items: center;
-      min-height: 205px; padding: 30px 44px; overflow: hidden; border-radius: 21px; background: var(--navy); color: white;
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(190px, .58fr); gap: 20px; align-items: center;
+      min-height: 240px; padding: 28px 40px; overflow: hidden; border-radius: 20px; color: white;
+      background: radial-gradient(ellipse at 86% 40%, #215365 0%, transparent 53%), var(--navy);
     }
-    .intro h1 { font-size: clamp(34px, 5vw, 56px); line-height: 1.15; letter-spacing: -.08em; }
-    .intro p { max-width: 520px; margin-top: 13px; color: #e0e7f6; font-size: 15px; word-break: keep-all; }
-    .diagram {
-      display: grid; align-content: center; gap: 8px; min-height: 142px; width: min(100%, 250px); padding: 15px;
-      border: 1px solid #52658a; border-radius: 14px;
-      background: repeating-linear-gradient(90deg, transparent 0 23px, rgb(215 229 255 / 9%) 23px 24px),
-        repeating-linear-gradient(0deg, #243654 0 23px, #34486c 23px 24px);
+    .intro h1 { font-size: clamp(34px, 5vw, 54px); line-height: 1.13; letter-spacing: -.075em; }
+    .intro h1 span { display: block; }
+    .intro p { max-width: 480px; margin-top: 15px; color: #d5e9ee; font-size: 15px; word-break: keep-all; }
+    .hero-art {
+      position: relative; min-height: 190px; display: grid; place-items: center; border-radius: 15px;
+      background-image: linear-gradient(rgb(163 238 226 / 11%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(163 238 226 / 11%) 1px, transparent 1px);
+      background-size: 22px 22px;
+      border: 1px solid rgb(163 238 226 / 24%);
     }
-    .diagram-flow { display: grid; grid-template-columns: 1fr auto 1fr; gap: 7px; align-items: center; }
-    .diagram-box { padding: 8px 5px; border: 1px solid #9fb2d9; border-radius: 7px; background: #182747; text-align: center; font-size: 12px; font-weight: 750; color: #f0f3ff; }
-    .diagram-box:first-child { background: var(--lime); color: var(--navy); border-color: var(--lime); }
-    .diagram-arrow { color: var(--lime); }
-    .diagram small { display: block; text-align: center; color: #e0e7f6; font-size: 11px; }
+    .hero-art img { display: block; width: min(100%, 280px); height: 182px; object-fit: contain; }
     .layout { display: grid; grid-template-columns: minmax(0, 1.31fr) minmax(0, 1fr); gap: 20px; align-items: start; margin-top: 22px; }
     .panel { min-width: 0; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 7px 20px rgb(29 41 70 / 4%); }
     .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 20px 23px; border-bottom: 1px solid var(--line); }
     .panel-head h2 { font-size: 20px; letter-spacing: -.04em; }
-    .sample-button { padding: 7px 10px; color: var(--blue-dark); background: #f4f6fd; border: 1px solid #dce4fa; border-radius: 7px; font-size: 13px; font-weight: 750; }
-    .sample-button:hover { background: #e7edfd; }
+    .sample-button { padding: 7px 10px; color: var(--blue-dark); background: #f0f8f7; border: 1px solid #cfe5e2; border-radius: 7px; font-size: 13px; font-weight: 750; }
+    .sample-button:hover { background: #e0f1ee; }
     form { padding: 21px 23px 23px; }
     fieldset { display: grid; gap: 14px; min-width: 0; margin: 0; padding: 0; border: 0; }
     fieldset + fieldset { border-top: 1px solid var(--line); margin-top: 20px; padding-top: 0; }
     legend { width: 100%; margin: 0 0 13px; padding: 0; color: var(--blue-dark); font-size: 13px; font-weight: 800; }
     fieldset + fieldset legend { float: left; margin-top: 17px; }
     .field { min-width: 0; }
+    .method { margin-bottom: 17px; padding: 11px 13px; border: 1px solid #d7e8e7; border-radius: 9px; background: #f4f9f9; }
+    .method select { width: 100%; margin-top: 4px; padding: 7px 9px; color: var(--ink); background: white; border: 1px solid #b9cdd3; border-radius: 7px; }
     label { display: block; font-weight: 800; }
     .hint { display: block; margin: 2px 0 6px; color: var(--muted); font-size: 12px; }
     textarea { display: block; width: 100%; min-height: 65px; padding: 9px 11px; border: 1px solid #cbd2df; border-radius: 8px; background: #fafbfe; color: var(--ink); resize: vertical; }
@@ -78,14 +80,14 @@
     .result-status { font-size: 12px; color: var(--muted); }
     .result-body { padding: 19px 22px 22px; }
     .empty { display: grid; gap: 16px; }
-    .empty > p, .error-message { padding: 13px 14px; border: 1px solid #dce4fa; border-radius: 9px; background: #f4f6fd; color: var(--blue-dark); font-size: 14px; }
+    .empty > p, .error-message { padding: 13px 14px; border: 1px solid #d7e8e7; border-radius: 9px; background: #f1f8f7; color: var(--blue-dark); font-size: 14px; }
     .error-message { margin-bottom: 13px; border-color: #edc7c2; background: #fff2f0; color: #852b27; }
     .rubric { margin: 0; }
     .rubric div { display: grid; grid-template-columns: 78px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid #e9ecf2; }
     .rubric div:last-child { border-bottom: 0; }
     .rubric dt { font-size: 13px; font-weight: 800; }
     .rubric dd { margin: 0; color: var(--muted); font-size: 13px; word-break: keep-all; }
-    .summary { padding: 12px 14px; background: #edf2ff; border-radius: 9px; }
+    .summary { padding: 12px 14px; background: #eaf5f3; border-radius: 9px; }
     .summary h3 { margin-bottom: 4px; font-size: 14px; color: var(--blue-dark); }
     .summary p, .feedback p { white-space: pre-wrap; overflow-wrap: anywhere; }
     .feedback-list { display: grid; gap: 9px; margin: 13px 0 0; padding: 0; list-style: none; }
@@ -94,10 +96,19 @@
     .feedback h3 { font-size: 15px; }
     .feedback p { font-size: 13px; }
     .feedback p + p { margin-top: 4px; }
+    .revision-detail { margin-top: 8px; padding: 8px 10px; border-radius: 7px; background: #f0f7f7; border-left: 2px solid #57a69e; }
     .verdict { padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 800; }
     .adequate { background: #e3f2e9; color: #184c36; }
     .improve { background: #fcf0cc; color: #6b4900; }
     .rework { background: #fce5e2; color: #8d2526; }
+    .references { margin-top: 22px; }
+    .sources { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 17px 22px 12px; list-style: none; }
+    .sources li { padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fbfdfd; }
+    .sources a { color: var(--blue-dark); font-weight: 800; text-underline-offset: 3px; }
+    .sources p { margin-top: 5px; color: var(--muted); font-size: 13px; word-break: keep-all; }
+    .source-links { display: flex; flex-wrap: wrap; gap: 7px 15px; padding: 0 22px 18px; font-size: 13px; color: var(--blue-dark); }
+    .credits { margin-top: 10px; color: var(--muted); font-size: 11px; }
+    .credits a { color: inherit; }
     @media (max-width: 800px) {
       .wrap { width: calc(100% - 36px); }
       .layout { grid-template-columns: minmax(0, 1fr); }
@@ -106,33 +117,34 @@
     @media (max-width: 550px) {
       .wrap { width: calc(100% - 24px); }
       main { padding-top: 16px; }
-      .intro { min-height: 0; grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 23px 19px; }
-      .diagram { width: 100%; min-height: 0; padding: 10px; }
+      .intro { min-height: 0; grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 21px 17px; }
+      .hero-art { min-height: 100px; }
+      .hero-art img { height: 112px; }
       .layout { gap: 12px; margin-top: 13px; }
       .panel-head, form, .result-body { padding-inline: 15px; }
+      .sources { grid-template-columns: minmax(0, 1fr); padding-inline: 15px; }
+      .source-links { padding-inline: 15px; }
     }
   </style>
 </head>
 <body>
   <header class="masthead">
     <div class="wrap">
-      <span class="brand"><span class="mark" aria-hidden="true">AI</span> 실험 설계 코치</span>
-      <a class="skip" href="#review-result">검토 결과로 이동</a>
+      <span class="brand"><span class="mark" aria-hidden="true">DNA</span> 분자생물학 실험 설계 코치</span>
+      <nav class="navigation" aria-label="페이지 메뉴">
+        <a class="skip" href="#review-result">검토 결과</a>
+        <a class="skip" href="#references">참고 문헌</a>
+      </nav>
     </div>
   </header>
   <main class="wrap">
     <section class="intro" aria-labelledby="title">
       <div>
-        <h1 id="title">실험 설계 코치</h1>
-        <p>실험 전에 목적, 가설, 변인이 서로 맞는지 확인해 보세요. 다섯 항목을 작성하면 AI가 판정 근거와 보완할 점을 알려줍니다.</p>
+        <h1 id="title"><span>분자생물학</span> 실험 설계 코치</h1>
+        <p>어떤 분자를, 어떤 조건에서, 어떤 지표로 비교하나요? 실험 계획을 입력하면 AI가 보완할 항목과 수정 문장 예시를 알려줍니다.</p>
       </div>
-      <div class="diagram" aria-label="바꿀 조건이 측정할 결과에 미치는 영향을 살펴보고, 나머지 주요 조건은 일정하게 유지합니다." role="img">
-        <div class="diagram-flow" aria-hidden="true">
-          <span class="diagram-box">바꿀 조건</span>
-          <span class="diagram-arrow">→</span>
-          <span class="diagram-box">측정할 결과</span>
-        </div>
-        <small aria-hidden="true">다른 주요 조건은 일정하게</small>
+      <div class="hero-art">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/97/DNA_Double_Helix.png" alt="DNA 이중나선 분자 모형" width="586" height="443">
       </div>
     </section>
     <div class="layout">
@@ -142,18 +154,28 @@
           <button class="sample-button" id="sample" type="button">예시 채우기</button>
         </div>
         <form id="design" novalidate>
+          <div class="method">
+            <label for="method">측정·분석 방법 <span class="hint">선택 사항</span></label>
+            <select id="method" name="method">
+              <option value="">방법 미정</option>
+              <option value="rt-qpcr">RT-qPCR</option>
+              <option value="western-blot">웨스턴 블롯</option>
+              <option value="public-expression">공개 유전자 발현 데이터 분석</option>
+              <option value="other">기타 분자 측정</option>
+            </select>
+          </div>
           <fieldset>
             <legend>목적과 예측</legend>
             <div class="field">
               <label for="purpose">실험 목적</label>
-              <span class="hint" id="purpose-hint">어떤 조건이 어떤 결과에 영향을 주는지 써 보세요.</span>
-              <textarea id="purpose" name="purpose" rows="2" maxlength="1500" required aria-describedby="purpose-hint purpose-error" placeholder="예: 물 온도에 따라 설탕이 녹는 시간이 다른지 알아본다."></textarea>
+              <span class="hint" id="purpose-hint">시료나 데이터, 분자 표적, 비교할 조건을 적어 보세요.</span>
+              <textarea id="purpose" name="purpose" rows="2" maxlength="1500" required aria-describedby="purpose-hint purpose-error" placeholder="예: 공개 효모 데이터에서 열 스트레스군과 대조군의 HSP104 발현을 비교한다."></textarea>
               <p class="field-error" id="purpose-error" hidden></p>
             </div>
             <div class="field">
               <label for="hypothesis">가설</label>
-              <span class="hint" id="hypothesis-hint">조건을 바꾸면 어떤 결과가 나타날지 예측해 보세요.</span>
-              <textarea id="hypothesis" name="hypothesis" rows="2" maxlength="1500" required aria-describedby="hypothesis-hint hypothesis-error" placeholder="예: 물 온도가 높을수록 설탕이 녹는 시간이 짧아질 것이다."></textarea>
+              <span class="hint" id="hypothesis-hint">어느 군과 비교해 어떤 지표가 어떻게 달라질지 예측하세요.</span>
+              <textarea id="hypothesis" name="hypothesis" rows="2" maxlength="1500" required aria-describedby="hypothesis-hint hypothesis-error" placeholder="예: 열 스트레스군의 HSP104 발현 신호가 대조군보다 높을 것이다."></textarea>
               <p class="field-error" id="hypothesis-error" hidden></p>
             </div>
           </fieldset>
@@ -161,20 +183,20 @@
             <legend>변인 설정</legend>
             <div class="field">
               <label for="independent">조작 변인</label>
-              <span class="hint" id="independent-hint">직접 바꿀 조건과 비교할 값을 적어 보세요.</span>
-              <textarea id="independent" name="independent" rows="2" maxlength="1500" required aria-describedby="independent-hint independent-error" placeholder="예: 물의 초기 온도 20°C, 40°C, 60°C"></textarea>
+              <span class="hint" id="independent-hint">바꿀 조건과 비교군을 적으세요. 공개 데이터라면 원 연구의 비교 요인을 적으세요.</span>
+              <textarea id="independent" name="independent" rows="2" maxlength="1500" required aria-describedby="independent-hint independent-error" placeholder="예: 원 연구에서 메타데이터상 구분되는 대조군과 한 열 스트레스군"></textarea>
               <p class="field-error" id="independent-error" hidden></p>
             </div>
             <div class="field">
               <label for="dependent">종속 변인</label>
-              <span class="hint" id="dependent-hint">측정할 결과와 측정 단위 또는 기준을 적어 보세요.</span>
-              <textarea id="dependent" name="dependent" rows="2" maxlength="1500" required aria-describedby="dependent-hint dependent-error" placeholder="예: 설탕을 넣은 때부터 알갱이가 보이지 않을 때까지 걸린 시간(초)"></textarea>
+              <span class="hint" id="dependent-hint">무슨 신호를 측정하는지, 단위와 정규화 기준이 무엇인지 적으세요.</span>
+              <textarea id="dependent" name="dependent" rows="2" maxlength="1500" required aria-describedby="dependent-hint dependent-error" placeholder="예: 공개 데이터에 기록된 HSP104 전사체의 정규화된 발현 신호"></textarea>
               <p class="field-error" id="dependent-error" hidden></p>
             </div>
             <div class="field">
               <label for="controls">통제 변인</label>
-              <span class="hint" id="controls-hint">비교 조건마다 같게 유지할 것과 유지 방법을 적어 보세요.</span>
-              <textarea id="controls" name="controls" rows="2" maxlength="1500" required aria-describedby="controls-hint controls-error" placeholder="예: 물의 양 100mL, 설탕의 종류와 양, 컵의 크기, 젓는 방식"></textarea>
+              <span class="hint" id="controls-hint">같게 유지할 조건을 적으세요. 대조군·독립 시료·반복 측정 계획도 함께 적을 수 있어요.</span>
+              <textarea id="controls" name="controls" rows="2" maxlength="1500" required aria-describedby="controls-hint controls-error" placeholder="예: 같은 효모 균주와 측정 플랫폼의 시료만 비교하고, 독립 시료 수와 배치 정보를 확인한다."></textarea>
               <p class="field-error" id="controls-error" hidden></p>
             </div>
           </fieldset>
@@ -195,22 +217,37 @@
           <div id="empty-result" class="empty">
             <p>실험 계획을 작성하고 <strong>AI 검토 받기</strong>를 누르면 항목별 판정이 여기에 표시됩니다.</p>
             <dl class="rubric">
-              <div><dt>실험 목적</dt><dd>무엇의 영향을 알아보는지</dd></div>
-              <div><dt>가설</dt><dd>실험으로 확인할 수 있는 예측인지</dd></div>
-              <div><dt>조작 변인</dt><dd>비교하려고 바꾸는 조건이 분명한지</dd></div>
-              <div><dt>종속 변인</dt><dd>결과를 어떻게 측정할 수 있는지</dd></div>
-              <div><dt>통제 변인</dt><dd>비교 내내 일정하게 유지할 조건이 있는지</dd></div>
+              <div><dt>실험 목적</dt><dd>시료와 분자 표적이 분명한지</dd></div>
+              <div><dt>가설</dt><dd>비교군과 예상 변화가 검증 가능한지</dd></div>
+              <div><dt>조작 변인</dt><dd>바꾸는 조건이나 원 연구의 비교 요인이 분명한지</dd></div>
+              <div><dt>종속 변인</dt><dd>측정 신호, 단위, 정규화 기준이 맞는지</dd></div>
+              <div><dt>통제 변인</dt><dd>일정한 조건, 대조군, 반복을 구분했는지</dd></div>
             </dl>
           </div>
           <div id="feedback" hidden></div>
         </div>
       </section>
     </div>
+    <section class="panel references" id="references" aria-labelledby="sources-title">
+      <div class="panel-head"><h2 id="sources-title">설계 기준과 참고 문헌</h2></div>
+      <ul class="sources">
+        <li><a href="https://academic.oup.com/clinchem/article/71/6/634/8119148" target="_blank" rel="noopener">MIQE 2.0 · 2025</a><p>qPCR 측정의 대조, 정규화, 결과 보고를 점검하는 기준</p></li>
+        <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6983856/" target="_blank" rel="noopener">Pillai-Kastoori 외 · 2020</a><p>웨스턴 블롯에서 항체 특이성과 대조 시료를 검토하는 사례</p></li>
+        <li><a href="https://pubmed.ncbi.nlm.nih.gov/27022035/" target="_blank" rel="noopener">Schurch 외 · 2016</a><p>RNA-seq에서 독립적인 생물학적 반복 수가 결과 검출에 미치는 영향</p></li>
+      </ul>
+      <div class="source-links">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed 논문 검색</a>
+        <a href="https://pmc.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PMC 공개 원문</a>
+        <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE132186" target="_blank" rel="noopener">GEO 효모 예시 데이터</a>
+      </div>
+    </section>
+    <p class="credits">DNA 모형 그림 <a href="https://commons.wikimedia.org/wiki/File:DNA_Double_Helix.png" target="_blank" rel="noopener">NHGRI / Apers0n, 퍼블릭 도메인</a></p>
   </main>
   <script>
     "use strict";
     const form = document.querySelector("#design");
     const inputs = [...form.querySelectorAll("textarea")];
+    const method = document.querySelector("#method");
     const submit = document.querySelector("#submit");
     const sample = document.querySelector("#sample");
     const progress = document.querySelector("#progress");
@@ -221,11 +258,11 @@
     const feedback = document.querySelector("#feedback");
     const verdicts = { adequate: "적절함", improve: "보완 필요", rework: "재설정 필요" };
     const example = {
-      purpose: "물 온도에 따라 설탕이 녹는 시간이 달라지는지 알아본다.",
-      hypothesis: "물 온도가 높을수록 설탕이 녹는 데 걸리는 시간이 짧아질 것이다.",
-      independent: "물 온도",
-      dependent: "설탕이 녹는 시간(초)",
-      controls: "같은 양의 물과 설탕을 사용한다.",
+      purpose: "공개 효모 데이터 GSE132186에서 열 스트레스군과 대조군의 HSP104 전사체 발현을 비교한다.",
+      hypothesis: "열 스트레스군의 HSP104 발현 신호가 대조군보다 높을 것이다.",
+      independent: "열 스트레스 여부",
+      dependent: "HSP104 발현량",
+      controls: "같은 종의 효모 자료를 사용한다.",
     };
     let pending = false;
 
@@ -236,6 +273,9 @@
     });
 
     sample.addEventListener("click", () => {
+      if (!method.value && inputs.every((input) => !input.value.trim())) {
+        method.value = "public-expression";
+      }
       for (const input of inputs) {
         if (!input.value.trim()) {
           input.value = example[input.name];
@@ -250,7 +290,7 @@
       event.preventDefault();
       if (pending) return;
       reviewError.hidden = true;
-      const inputData = {};
+      const inputData = { method: method.value };
       let firstInvalid;
       for (const input of inputs) {
         const value = input.value.trim();
@@ -313,6 +353,7 @@
       pending = value;
       submit.disabled = value;
       sample.disabled = value;
+      method.disabled = value;
       submit.textContent = value ? "검토하는 중…" : "AI 검토 받기";
       for (const input of inputs) input.readOnly = value;
     }
@@ -332,6 +373,15 @@
         const revision = element("p");
         revision.append(element("strong", "", item.verdict === "adequate" ? "유지할 점 " : "보완 방법 "), item.revision);
         card.append(header, reason, revision);
+        if (item.example && item.check) {
+          const detail = element("div", "revision-detail");
+          const example = element("p");
+          example.append(element("strong", "", "계획서 문장 예시 "), item.example);
+          const check = element("p");
+          check.append(element("strong", "", "확인 기준 "), item.check);
+          detail.append(example, check);
+          card.append(detail);
+        }
         list.append(card);
       }
       feedback.replaceChildren(summary, list);
