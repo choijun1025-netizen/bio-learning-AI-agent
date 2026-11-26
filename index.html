@@ -169,13 +169,13 @@
             <div class="field">
               <label for="purpose">실험 목적</label>
               <span class="hint" id="purpose-hint">시료나 데이터, 분자 표적, 비교할 조건을 적어 보세요.</span>
-              <textarea id="purpose" name="purpose" rows="2" maxlength="1500" required aria-describedby="purpose-hint purpose-error" placeholder="예: 공개 효모 데이터에서 열 스트레스군과 대조군의 HSP104 발현을 비교한다."></textarea>
+              <textarea id="purpose" name="purpose" rows="2" maxlength="1500" required aria-describedby="purpose-hint purpose-error"></textarea>
               <p class="field-error" id="purpose-error" hidden></p>
             </div>
             <div class="field">
               <label for="hypothesis">가설</label>
               <span class="hint" id="hypothesis-hint">어느 군과 비교해 어떤 지표가 어떻게 달라질지 예측하세요.</span>
-              <textarea id="hypothesis" name="hypothesis" rows="2" maxlength="1500" required aria-describedby="hypothesis-hint hypothesis-error" placeholder="예: 열 스트레스군의 HSP104 발현 신호가 대조군보다 높을 것이다."></textarea>
+              <textarea id="hypothesis" name="hypothesis" rows="2" maxlength="1500" required aria-describedby="hypothesis-hint hypothesis-error"></textarea>
               <p class="field-error" id="hypothesis-error" hidden></p>
             </div>
           </fieldset>
@@ -184,19 +184,19 @@
             <div class="field">
               <label for="independent">조작 변인</label>
               <span class="hint" id="independent-hint">바꿀 조건과 비교군을 적으세요. 공개 데이터라면 원 연구의 비교 요인을 적으세요.</span>
-              <textarea id="independent" name="independent" rows="2" maxlength="1500" required aria-describedby="independent-hint independent-error" placeholder="예: 원 연구에서 메타데이터상 구분되는 대조군과 한 열 스트레스군"></textarea>
+              <textarea id="independent" name="independent" rows="2" maxlength="1500" required aria-describedby="independent-hint independent-error"></textarea>
               <p class="field-error" id="independent-error" hidden></p>
             </div>
             <div class="field">
               <label for="dependent">종속 변인</label>
               <span class="hint" id="dependent-hint">무슨 신호를 측정하는지, 단위와 정규화 기준이 무엇인지 적으세요.</span>
-              <textarea id="dependent" name="dependent" rows="2" maxlength="1500" required aria-describedby="dependent-hint dependent-error" placeholder="예: 공개 데이터에 기록된 HSP104 전사체의 정규화된 발현 신호"></textarea>
+              <textarea id="dependent" name="dependent" rows="2" maxlength="1500" required aria-describedby="dependent-hint dependent-error"></textarea>
               <p class="field-error" id="dependent-error" hidden></p>
             </div>
             <div class="field">
               <label for="controls">통제 변인</label>
               <span class="hint" id="controls-hint">같게 유지할 조건을 적으세요. 대조군·독립 시료·반복 측정 계획도 함께 적을 수 있어요.</span>
-              <textarea id="controls" name="controls" rows="2" maxlength="1500" required aria-describedby="controls-hint controls-error" placeholder="예: 같은 효모 균주와 측정 플랫폼의 시료만 비교하고, 독립 시료 수와 배치 정보를 확인한다."></textarea>
+              <textarea id="controls" name="controls" rows="2" maxlength="1500" required aria-describedby="controls-hint controls-error"></textarea>
               <p class="field-error" id="controls-error" hidden></p>
             </div>
           </fieldset>
@@ -257,34 +257,83 @@
     const emptyResult = document.querySelector("#empty-result");
     const feedback = document.querySelector("#feedback");
     const verdicts = { adequate: "적절함", improve: "보완 필요", rework: "재설정 필요" };
-    const example = {
-      purpose: "공개 효모 데이터 GSE132186에서 열 스트레스군과 대조군의 HSP104 전사체 발현을 비교한다.",
-      hypothesis: "열 스트레스군의 HSP104 발현 신호가 대조군보다 높을 것이다.",
-      independent: "열 스트레스 여부",
-      dependent: "HSP104 발현량",
-      controls: "같은 종의 효모 자료를 사용한다.",
+    const defaultMethod = "public-expression";
+    const examples = {
+      "western-blot": {
+        purpose: "웨스턴 블롯 자료에서 어린 시금치 잎과 성숙한 잎의 Rubisco 큰 소단위체 신호를 비교한다.",
+        hypothesis: "성숙한 잎에서 총 단백질로 정규화한 Rubisco 밴드 강도가 어린잎보다 높을 것이다.",
+        independent: "잎의 발달 단계(어린잎과 성숙한 잎)",
+        dependent: "잎 시료별 Rubisco 큰 소단위체 밴드 강도를 같은 레인의 총 단백질 신호로 나눈 값",
+        controls: "같은 시금치 품종과 검출 조건의 자료를 사용한다. 다른 개체에서 얻은 잎 시료와 같은 시료의 반복 측정을 구분한다.",
+      },
+      "rt-qpcr": {
+        purpose: "밝은 조건과 어두운 조건의 애기장대 잎에서 RBCS1A 전사체 발현을 RT-qPCR로 비교한다.",
+        hypothesis: "밝은 조건에서 정규화한 RBCS1A 전사체 발현이 어두운 조건보다 높을 것이다.",
+        independent: "빛 노출 조건(밝은 조건과 어두운 조건)",
+        dependent: "두 조건에서 안정적인 것으로 확인된 기준 유전자로 정규화한 RBCS1A 전사체 발현",
+        controls: "같은 품종, 비슷한 잎의 발달 단계와 같은 채취 시점을 비교한다. 무주형 대조와 역전사 없음 대조를 구분한다.",
+      },
+      "public-expression": {
+        purpose: "공개 효모 데이터 GSE132186에서 열 스트레스군과 대조군의 HSP104 전사체 발현을 비교한다.",
+        hypothesis: "열 스트레스군의 HSP104 발현 신호가 대조군보다 높을 것이다.",
+        independent: "원 연구의 비교 요인은 열 스트레스 여부다. 시료 정보의 조건 표기로 대조군과 한 열 스트레스군을 구분한다.",
+        dependent: "같은 플랫폼에서 기록된 시료별 HSP104의 정규화된 발현 신호",
+        controls: "동일한 효모 균주와 측정 플랫폼의 시료를 비교하며, 독립 시료 수와 처리 배치 정보를 확인한다.",
+      },
+      other: {
+        purpose: "Bradford 단백질 정량 자료에서 알부민 표준 용액의 농도와 흡광도의 관계를 확인한다.",
+        hypothesis: "표준곡선의 비교 범위에서 알부민 농도가 높을수록 공시험을 보정한 흡광도가 높을 것이다.",
+        independent: "알부민 표준 용액의 농도(자료에 기록된 표준 농도 수준)",
+        dependent: "단백질을 넣지 않은 공시험의 값을 뺀 흡광도",
+        controls: "같은 용매와 측정 방식으로 얻은 자료를 비교한다. 단백질을 넣지 않은 공시험을 기준으로 삼는다.",
+      },
     };
+    const insertedExamples = new Map();
     let pending = false;
 
+    updateExamples();
+
     form.addEventListener("input", (event) => {
-      if (event.target instanceof HTMLTextAreaElement) showFieldError(event.target, "");
+      if (!(event.target instanceof HTMLTextAreaElement)) return;
+      insertedExamples.delete(event.target);
+      showFieldError(event.target, "");
       updateProgress();
+      if (!feedback.hidden) resultStatus.textContent = "수정됨 · 다시 검토 가능";
+    });
+
+    method.addEventListener("change", () => {
+      updateExamples();
       if (!feedback.hidden) resultStatus.textContent = "수정됨 · 다시 검토 가능";
     });
 
     sample.addEventListener("click", () => {
       if (!method.value && inputs.every((input) => !input.value.trim())) {
-        method.value = "public-expression";
+        method.value = defaultMethod;
       }
+      const example = examples[method.value || defaultMethod];
       for (const input of inputs) {
         if (!input.value.trim()) {
           input.value = example[input.name];
+          insertedExamples.set(input, input.value);
           showFieldError(input, "");
         }
       }
       updateProgress();
       if (!feedback.hidden) resultStatus.textContent = "수정됨 · 다시 검토 가능";
     });
+
+    function updateExamples() {
+      const example = examples[method.value || defaultMethod];
+      for (const input of inputs) {
+        const value = example[input.name];
+        input.placeholder = "예: " + value;
+        if (insertedExamples.get(input) === input.value) {
+          input.value = value;
+          insertedExamples.set(input, value);
+          showFieldError(input, "");
+        }
+      }
+    }
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
